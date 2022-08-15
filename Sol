@@ -1,0 +1,132 @@
+import java.awt.*; 
+import java.awt.event.*; 
+import java.util.*;
+import javax.swing.*;
+import java.awt.geom.*; 
+
+public class Sol extends JPanel implements ActionListener {
+
+//860*740 resolution and more recommended. Best wishes, OlegTim
+public JFrame jFrame;
+static  ArrayList<Integer> list = new ArrayList<>();
+public static int d=13;
+public static int xd=0;
+public static int yd=0;
+public static int z=1;
+public static int side=5;
+public static int fatside=2;
+
+static{
+for (int i = 0; i < side*side*side ; i++) { // start field
+list.add(1);
+}}
+
+public class Solar extends JPanel {
+
+@Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+xd=side*d*2+fatside*side-2*d; //first block position
+yd=side*d*2+fatside*side-2*d;
+int z2=0;
+for (int i3 = 0; i3 <side; i3++)
+  {//cube start
+for (int i2 = 0; i2 <side; i2++)
+  {//first square start
+for (int i = 0; i <side; i++)
+  {//first line start
+
+z=list.get(z2);
+z2++;
+if (z>0){//if block exist
+Polygon p= new Polygon(); //counter-clock
+p.addPoint(0*d+xd, 2*d+yd);
+p.addPoint(2*d+xd, 4*d+yd);
+p.addPoint(4*d+xd, 2*d+yd);
+p.addPoint(2*d+xd, yd);
+g.setColor(Color.red);
+g.fillPolygon(p);
+
+Polygon p2= new Polygon(); 
+p2.addPoint(0*d+xd, 2*d+yd);
+p2.addPoint(0*d+xd, 4*d+yd);
+p2.addPoint(2*d+xd, 6*d+yd);
+p2.addPoint(2*d+xd, 4*d+yd);
+g.setColor(Color.black);
+g.fillPolygon(p2);
+
+Polygon p3= new Polygon(); 
+p3.addPoint(2*d+xd, 4*d+yd);
+p3.addPoint(2*d+xd, 6*d+yd);
+p3.addPoint(4*d+xd, 4*d+yd);
+p3.addPoint(4*d+xd, 2*d+yd);
+g.setColor(Color.gray);
+g.fillPolygon(p3);
+}
+
+xd=xd-2*d-fatside;
+yd=yd+2*d+fatside;
+}//first line end
+xd=xd+2*d*side+2*d+fatside*side+fatside; 
+yd=yd-2*d*side+2*d-fatside*side+fatside;
+}//first square end
+xd=xd-2*d*side-fatside*side; 
+yd=yd-2*d*side-2*d-fatside*side-fatside;
+}//cube end
+
+}
+}
+
+
+Sol(){
+jFrame = new JFrame();
+jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+Solar p1 = new Solar(); 
+
+JPanel panel = new JPanel();
+ panel.setLayout(new GridLayout(side*side,side,1,1));
+
+for (int i = 0; i < side*side*side ; i++) {//
+JButton button = new JButton(String.valueOf(list.get(i))); 
+//button.setPreferredSize(new Dimension(2*d, 2*d));
+button.setName(""+i);
+
+
+button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+String s = ((JComponent) e.getSource()).getName();
+//JOptionPane.showMessageDialog(null, s, "Window name", JOptionPane.PLAIN_MESSAGE);
+  int a = Integer.parseInt(s);
+int b = list.get(a);
+if (b>0){b=0;}else{b=1;}
+list.set(a, b);
+redraw();
+} 
+ });
+
+panel.add(button);
+}
+
+p1.add(panel);
+jFrame.add(p1);
+
+jFrame.setSize(1024,748);
+//jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+jFrame.setResizable(false);
+jFrame.setVisible(true);
+}
+
+    public static void main(String[] args) {
+new Sol();
+    }
+
+public void actionPerformed(ActionEvent e) {}
+
+public void redraw(){
+jFrame.getContentPane().removeAll(); //clear GUI
+jFrame.dispose();
+new Sol (); //GUI with new info
+}
+
+}
