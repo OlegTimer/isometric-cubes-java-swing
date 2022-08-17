@@ -1,0 +1,270 @@
+import java.awt.*; 
+import java.awt.event.*; 
+import java.util.*;
+import javax.swing.*;
+import java.awt.geom.*; 
+
+public class Sol extends JPanel implements ActionListener {
+
+//860*740 resolution and more recommended. Best wishes, OlegTim. 5*5*5 cubes, with gravel. visual
+public JFrame jFrame;
+static  ArrayList<Integer> list = new ArrayList<>();
+public static int d=13;
+public static int xd=0;
+public static int yd=0;
+public static int z=1;
+public static int side=5;
+public static int fatside=2;
+public static int brush=0;
+
+static{
+for (int i = 0; i < side*side*side ; i++) { // start field
+list.add(1);
+}
+//list.set(124,0);
+}
+
+public class Solar extends JPanel {
+
+@Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+xd=side*d*2+fatside*side-2*d; //first block position
+yd=side*d*2+fatside*side-2*d;
+int z2=0;
+for (int i3 = 0; i3 <side; i3++)
+  {//cube start
+for (int i2 = 0; i2 <side; i2++)
+  {//first square start
+for (int i = 0; i <side; i++)
+  {//first line start
+
+z=list.get(z2);
+z2++;
+if (z>0){//if block exist
+Polygon p= new Polygon(); //counter-clock
+p.addPoint(0*d+xd, 2*d+yd);
+p.addPoint(2*d+xd, 4*d+yd);
+p.addPoint(4*d+xd, 2*d+yd);
+p.addPoint(2*d+xd, yd);
+
+if (z2>side*side*4)
+g.setColor(Color.red);
+if (z2<side*side*4+1&&z2>side*side*3)
+g.setColor(Color.green);
+if (z2<side*side*3+1&&z2>side*side*2)
+g.setColor(Color.yellow);
+if (z2<side*side*2+1&&z2>side*side*1)
+g.setColor(Color.blue);
+if (z2<side*side*1+1)
+g.setColor(Color.pink);
+
+g.fillPolygon(p);
+
+Polygon p2= new Polygon(); 
+p2.addPoint(0*d+xd, 2*d+yd);
+p2.addPoint(0*d+xd, 4*d+yd);
+p2.addPoint(2*d+xd, 6*d+yd);
+p2.addPoint(2*d+xd, 4*d+yd);
+g.setColor(Color.black);
+g.fillPolygon(p2);
+
+Polygon p3= new Polygon(); 
+p3.addPoint(2*d+xd, 4*d+yd);
+p3.addPoint(2*d+xd, 6*d+yd);
+p3.addPoint(4*d+xd, 4*d+yd);
+p3.addPoint(4*d+xd, 2*d+yd);
+g.setColor(Color.gray);
+g.fillPolygon(p3);
+
+if (z>1){
+g.setColor(Color.white);
+g.fillRect(xd+d+3, yd+2*d, 3, 3);
+g.fillRect(xd+d+3, yd+4*d, 3, 3);
+g.fillRect(xd+3*d+3, yd+4*d, 3, 3);
+g.setColor(Color.black);
+g.fillRect(xd+2*d+3, yd+2*d, 3, 3);
+g.fillRect(xd+d-3, yd+4*d, 3, 3);
+g.fillRect(xd+3*d-3, yd+4*d, 3, 3);
+}
+
+}
+
+xd=xd-2*d-fatside;
+yd=yd+2*d+fatside;
+}//first line end
+xd=xd+2*d*side+2*d+fatside*side+fatside; 
+yd=yd-2*d*side+2*d-fatside*side+fatside;
+}//first square end
+xd=xd-2*d*side-fatside*side; 
+yd=yd-2*d*side-2*d-fatside*side-fatside;
+}//cube end
+
+}
+}
+
+
+Sol(){
+jFrame = new JFrame();
+jFrame.setTitle ("Isometric cubes Java by OlegTim");
+jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+Solar p1 = new Solar(); 
+
+//JButton button2 = new JButton("Dumm");
+//p1.add(button2);
+//JLabel label1 = new JLabel("Text");
+//p1.add(label1);
+
+
+JPanel panel = new JPanel();
+ panel.setLayout(new GridLayout(side*side,side,1,1));
+
+int count=0; int rowc=0;
+for (int i = 0; i < side*side*side ; i++) {//
+JButton button = new JButton(); 
+button.setPreferredSize(new Dimension(2*d, 2*d));
+
+int bt = side*side*side-i-1;
+
+//bt name start
+
+bt=bt-side*(side-1)+rowc*side;
+count++;
+
+if (count>side-1){
+count=0;
+rowc=rowc+2;
+if (rowc>(side-1)*2){
+rowc=0;
+}
+}
+
+// bt name end
+
+button.setName(""+bt);
+
+if (list.get(bt)<1)
+button.setBackground(Color.white);
+
+if (list.get(bt)>0){
+if (bt>side*side*4-1)
+button.setBackground(Color.red);
+if (bt<side*side*4&&bt>side*side*3-1)
+button.setBackground(Color.green);
+if (bt<side*side*3&&bt>side*side*2-1)
+button.setBackground(Color.yellow);
+if (bt<side*side*2&&bt>side*side*1-1)
+button.setBackground(Color.blue);
+if (bt<side*side*1)
+button.setBackground(Color.pink);
+}
+
+
+if (list.get(bt)>1){
+button.setBorder(BorderFactory.createLineBorder(Color.BLACK, 4));
+}
+
+button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+String s = ((JComponent) e.getSource()).getName();
+//JOptionPane.showMessageDialog(null, "lol", "Window name", JOptionPane.PLAIN_MESSAGE);
+  int a = Integer.parseInt(s);
+//int b = list.get(a);
+
+list.set(a, brush);
+redraw();
+} 
+ });
+
+panel.add(button);
+}//
+
+
+JPanel panel2 = new JPanel();
+ panel2.setLayout(new GridLayout(side*side,1,1,1));
+for (int i = 0; i < side*side ; i++) {//
+JButton button = new JButton(); 
+button.setPreferredSize(new Dimension(5, 2*d));
+button.setEnabled(false);
+
+if (i>side*4-1)
+button.setBackground(Color.pink);
+if (i<side*4&&i>side*3-1)
+button.setBackground(Color.blue);
+if (i<side*3&&i>side*2-1)
+button.setBackground(Color.yellow);
+if (i<side*2&&i>side*1-1)
+button.setBackground(Color.green);
+if (i<side*1)
+button.setBackground(Color.red);
+
+panel2.add(button);
+}
+
+JPanel panel3 = new JPanel();
+panel3.setLayout(new GridLayout(side*side,1,1,1));
+
+JRadioButton empty = new JRadioButton("empty");
+if (brush == 0){
+empty.setSelected(true);}
+panel3.add(empty);
+JRadioButton rock = new JRadioButton("rock");
+if (brush == 1){
+rock.setSelected(true);}
+panel3.add(rock);
+JRadioButton gravel = new JRadioButton("gravel");
+if (brush == 2){
+gravel.setSelected(true);}
+panel3.add(gravel);
+
+ ButtonGroup group = new ButtonGroup();
+ group.add(empty);
+ group.add(rock);
+ group.add(gravel);
+
+empty.addActionListener(this); 
+gravel.addActionListener(this); 
+rock.addActionListener(this); 
+
+p1.add(panel2);
+p1.add(panel);
+p1.add(panel3);
+jFrame.add(p1);
+
+jFrame.setSize(1024,740);
+//jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+jFrame.setResizable(false);
+jFrame.setVisible(true);
+}
+
+    public static void main(String[] args) {
+new Sol();
+    }
+
+public void actionPerformed(ActionEvent e) {
+
+if(e.getActionCommand().equals("empty"))
+{
+brush = 0;
+}
+
+if(e.getActionCommand().equals("rock"))
+{
+brush = 1;
+}
+
+if(e.getActionCommand().equals("gravel"))
+{
+brush = 2;
+}
+
+}
+
+public void redraw(){
+jFrame.getContentPane().removeAll(); //clear GUI
+jFrame.dispose();
+new Sol (); //GUI with new info
+}
+
+}
