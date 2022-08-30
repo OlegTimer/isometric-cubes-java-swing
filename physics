@@ -1,0 +1,1265 @@
+import java.awt.*; 
+import java.awt.event.*; 
+import java.util.*;
+import javax.swing.*;
+import java.awt.geom.*; 
+import javax.swing.JComboBox;
+
+public class Sol extends JPanel implements ActionListener {
+
+//1024*768 resolution and more recommended. Best wishes, OlegTim.
+//physics added. rock archs 1-2 wide, columns 1-2 tall or becomes gravel, which slides and fall
+//save/load via text line, try ctrl c  and ctrl v
+//6*6*6 cubes. rotate camera at roll 0 and 45 with yaw 0,45...315
+public JFrame jFrame;
+public static  ArrayList<Integer> list = new ArrayList<>();
+public static  ArrayList<Integer> list2 = new ArrayList<>();
+public static  ArrayList<Integer> list3 = new ArrayList<>();
+public static  ArrayList<Integer> list4 = new ArrayList<>();
+
+public static int d=13;
+public static int xd=0;
+public static int yd=0;
+public static int z=1;
+public static int side=6;
+public static int fatside=2;
+public static int brush=0;
+public static int gsize=4;
+public static int yaw=45;
+public JLabel yawt;
+public JLabel rollt;
+public static int roll=45;
+public static  JTextField smallField;
+public static JToggleButton topv;
+public static int phflag=1;
+public  JComboBox<String> boxmaps;
+public static String mpnum="start";
+
+static{
+for (int i = 0; i < side*side*side ; i++) { // start field
+list.add(1);
+list2.add(1);
+list3.add(1);
+list4.add(1);
+}
+}
+
+public class Solar extends JPanel {
+
+
+@Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+if (roll==45|| roll==0){//if roll 45 0 start
+
+
+if (yaw==315||yaw==0){
+for (int i = 0; i < side*side*side ; i++) {//copy list 1. basic isom view
+int inv = list.get(i);
+list2.set(i,inv);
+}
+}
+
+
+if (yaw==45||yaw==90){//arr yaw 45 roll 45 start
+int lvldown =0;
+
+for (int i3 = 0; i3 < side ; i3++) {
+int zpinit = side*side*side-1-lvldown;
+int zp = zpinit;
+int zk = side-1;
+for (int i2 = 0; i2 < side ; i2++) {
+for (int i = 0; i < side ; i++) {
+int k = list.get(zp);
+list2.set(zpinit-zk*side,k);
+zp--;
+zk--;
+}
+zk = side-1;
+zpinit--;
+}
+lvldown = lvldown +side*side;
+}
+}//arr yaw 45 roll 45 end
+
+if (yaw==135||yaw==180){
+int lvldown =0;
+
+for (int i3 = 0; i3 < side ; i3++) {
+for (int i = 0; i < side*side ; i++) {
+int k = list.get(side*side*side-1-i-lvldown);
+list2.set(side*side*side-side*side+i-lvldown ,k);
+}
+lvldown = lvldown +side*side;
+}
+}
+
+if (yaw==225||yaw==270){
+int lvldown =0;
+
+int zp = side*side*side-1-lvldown;
+int zpinit = zp-side+1;
+int zk = 0;
+
+for (int i3 = 0; i3 < side ; i3++) {
+
+zpinit = side*side*side-lvldown-side;
+
+for (int i2 = 0; i2 < side ; i2++) {
+for (int i = 0; i < side ; i++) {
+int k = list.get(zp);
+list2.set(zpinit-zk*side,k);
+zp--;
+zk++;
+}
+zk=0;
+zpinit =zpinit+1;
+}
+lvldown = lvldown +side*side;
+}
+}
+
+if (roll==45){
+if (yaw==315 || yaw==45 || yaw==135 || yaw==225){//if roll 45 yaw 45 or 135 or 225 or 315 start
+
+xd=side*d*2+fatside*side-2*d; //first block position
+yd=side*d*2+fatside*side-2*d;
+int z2=0;
+for (int i3 = 0; i3 <side; i3++)
+  {//cube start
+for (int i2 = 0; i2 <side; i2++)
+  {//first square start
+for (int i = 0; i <side; i++)
+  {//first line start
+
+z=list2.get(z2);
+z2++;
+
+
+if (z>0){//if block exist
+Polygon p= new Polygon(); //counter-clock
+p.addPoint(0*d+xd, 1*d+yd);
+p.addPoint(2*d+xd, 2*d+yd);
+p.addPoint(4*d+xd, 1*d+yd);
+p.addPoint(2*d+xd, yd);
+
+int col1 = 51; int col2 = 201; int col3 = 201;
+//g.setColor(new Color(col1, col1, col1));
+
+if (z2<side*side*6+1&&z2>side*side*5)
+g.setColor(Color.red);
+if (z2<side*side*5+1&&z2>side*side*4)
+g.setColor(Color.green);
+if (z2<side*side*4+1&&z2>side*side*3)
+g.setColor(Color.yellow);
+if (z2<side*side*3+1&&z2>side*side*2)
+g.setColor(Color.blue);
+if (z2<side*side*2+1&&z2>side*side*1)
+g.setColor(Color.pink);
+if (z2<side*side*1+1)
+g.setColor(Color.orange);
+g.fillPolygon(p);
+
+if (yaw==315)
+{col1=51;col2=201;}
+
+if (yaw==45)
+{col1=201;col2=153;}
+
+if (yaw==135)
+{col1=153;col2=102;}
+
+if (yaw==225)
+{col1=102;col2=51;}
+
+Polygon p2= new Polygon(); 
+p2.addPoint(0*d+xd, 1*d+yd);
+p2.addPoint(0*d+xd, 3*d+yd);
+p2.addPoint(2*d+xd, 4*d+yd);
+p2.addPoint(2*d+xd, 2*d+yd);
+g.setColor(new Color(col1, col1, col1));
+g.fillPolygon(p2);
+
+Polygon p3= new Polygon(); 
+p3.addPoint(2*d+xd, 2*d+yd);
+p3.addPoint(2*d+xd, 4*d+yd);
+p3.addPoint(4*d+xd, 3*d+yd);
+p3.addPoint(4*d+xd, 1*d+yd);
+g.setColor(new Color(col2, col2, col2));
+g.fillPolygon(p3);
+
+if (z>1){//gravel
+g.setColor(Color.white);
+g.fillRect(xd+d+3, yd+1*d, gsize, gsize);
+g.fillRect(xd+d+3, yd+2*d, gsize, gsize);
+g.fillRect(xd+3*d+3, yd+2*d, gsize, gsize);
+g.setColor(Color.black);
+g.fillRect(xd+2*d+3, yd+1*d, gsize, gsize);
+g.fillRect(xd+d-3, yd+2*d, gsize, gsize);
+g.fillRect(xd+3*d-3, yd+2*d, gsize, gsize);
+}
+
+}
+
+xd=xd-2*d-fatside;
+yd=yd+1*d+fatside;
+}//first line end
+xd=xd+2*d*side+2*d+fatside*side+fatside; 
+yd=yd-2*d*side+7*d-fatside*side+fatside;
+}//first square end
+xd=xd-2*d*side-fatside*side; 
+yd=yd-1*d*side-2*d-fatside*side-fatside;
+}//cube end
+
+}}//if roll 45 yaw = 45 or 135 or 225 or 315 end
+
+if (roll == 45){
+if (yaw==0 || yaw==90 || yaw==180 || yaw==270){//if roll 45 yaw 0 or 90 or 180 or 270 start
+int dcopy=d;
+double doubleValue = 1.25*d;
+d = (int) doubleValue;
+
+xd=side*d*2+fatside*side-2*d; //first block position
+yd=side*d*1+4*d+fatside*side+1*fatside;
+int z2=0;
+for (int i3 = 0; i3 <side; i3++)
+  {//cube start
+for (int i2 = 0; i2 <side; i2++)
+  {//first square start
+for (int i = 0; i <side; i++)
+  {//first line start
+
+z=list2.get(z2);
+z2++;
+
+if (z>0){//if block exist
+Polygon p= new Polygon(); //counter-clock
+p.addPoint(0*d+xd, 0*d+yd);
+p.addPoint(0*d+xd, 2*d+yd);
+p.addPoint(2*d+xd, 2*d+yd);
+p.addPoint(2*d+xd, 0*d+yd);
+
+int col1 = 51; int col2 = 201; int col3 = 201;
+//g.setColor(new Color(col1, col1, col1));
+
+if (z2<side*side*6+1&&z2>side*side*5)
+g.setColor(Color.red);
+if (z2<side*side*5+1&&z2>side*side*4)
+g.setColor(Color.green);
+if (z2<side*side*4+1&&z2>side*side*3)
+g.setColor(Color.yellow);
+if (z2<side*side*3+1&&z2>side*side*2)
+g.setColor(Color.blue);
+if (z2<side*side*2+1&&z2>side*side*1)
+g.setColor(Color.pink);
+if (z2<side*side*1+1)
+g.setColor(Color.orange);
+g.fillPolygon(p);
+
+if (yaw==0)
+{col2=201;}
+
+if (yaw==90)
+{col2=153;}
+
+if (yaw==180)
+{col2=102;}
+
+if (yaw==270)
+{col2=51;}
+
+
+Polygon p3= new Polygon(); 
+p3.addPoint(0*d+xd, 2*d+yd);
+p3.addPoint(0*d+xd, 4*d+yd);
+p3.addPoint(2*d+xd, 4*d+yd);
+p3.addPoint(2*d+xd, 2*d+yd);
+g.setColor(new Color(col2, col2, col2));
+g.fillPolygon(p3);
+
+if (z>1){//gravel
+g.setColor(Color.white);
+g.fillRect(xd+d+4, yd+1*d, gsize, gsize);
+g.fillRect(xd+d+4, yd+3*d, gsize, gsize);
+g.setColor(Color.black);
+g.fillRect(xd+1*d-4, yd+1*d, gsize, gsize);
+g.fillRect(xd+d-4, yd+3*d, gsize, gsize);
+}
+
+}
+
+xd=xd-2*d-fatside;
+
+}//first line end
+xd=side*d*2+fatside*side-2*d; 
+yd=yd+2*d+fatside;
+}//first square end
+xd=side*d*2+fatside*side-2*d; 
+yd=yd-side*d*2-2*d-fatside*side-fatside;
+}//cube end
+d=dcopy;
+}}//if roll = 45 yaw = 0 or 90 or 180 or 270 end
+
+if (roll==0){//if roll = 0 yaw 45 or 135 or 225 or 315 start
+if (yaw==315 || yaw==45 || yaw==135 || yaw==225){
+xd=side*d*2+fatside*side-2*d; //first block position
+yd=side*d*1+fatside*side-4*d;
+int z2=0;
+for (int i3 = 0; i3 <side; i3++)
+  {//cube start
+for (int i2 = 0; i2 <side; i2++)
+  {//first square start
+for (int i = 0; i <side; i++)
+  {//first line start
+
+z=list2.get(z2);
+z2++;
+
+
+if (z>0){//if block exist
+Polygon p= new Polygon(); //counter-clock
+p.addPoint(0*d+xd, 2*d+yd);
+p.addPoint(2*d+xd, 4*d+yd);
+p.addPoint(4*d+xd, 2*d+yd);
+p.addPoint(2*d+xd, yd);
+
+int col1 = 51; int col2 = 201; int col3 = 201;
+//g.setColor(new Color(col1, col1, col1));
+
+if (z2<side*side*6+1&&z2>side*side*5)
+g.setColor(Color.red);
+if (z2<side*side*5+1&&z2>side*side*4)
+g.setColor(Color.green);
+if (z2<side*side*4+1&&z2>side*side*3)
+g.setColor(Color.yellow);
+if (z2<side*side*3+1&&z2>side*side*2)
+g.setColor(Color.blue);
+if (z2<side*side*2+1&&z2>side*side*1)
+g.setColor(Color.pink);
+if (z2<side*side*1+1)
+g.setColor(Color.orange);
+g.fillPolygon(p);
+
+
+if (z>1){//gravel
+g.setColor(Color.white);
+g.fillRect(xd+d+3, yd+2*d, gsize, gsize);
+
+g.setColor(Color.black);
+g.fillRect(xd+2*d+3, yd+2*d, gsize, gsize);
+
+}
+
+}
+
+xd=xd-2*d-fatside;
+yd=yd+2*d+fatside;
+}//first line end
+xd=xd+2*d*side+2*d+fatside*side+fatside; 
+yd=yd-2*d*side+2*d-fatside*side+fatside;
+}//first square end
+xd=xd-2*d*side-fatside*side; 
+yd=side*d*1+fatside*side-4*d;
+}//cube end
+
+}}//if roll 0 yaw = 45 or 135 or 225 or 315 end
+
+if (roll == 0){
+if (yaw==0 || yaw==90 || yaw==180 || yaw==270){//if roll 0 yaw 0 or 90 or 180 or 270 start
+int dcopy=d;
+double doubleValue = 1.4*d;
+d = (int) doubleValue;
+
+xd=side*d*2+fatside*side-2*d; //first block position
+yd=side*d*1+fatside*side-4*d;
+int z2=0;
+for (int i3 = 0; i3 <side; i3++)
+  {//cube start
+for (int i2 = 0; i2 <side; i2++)
+  {//first square start
+for (int i = 0; i <side; i++)
+  {//first line start
+
+z=list2.get(z2);
+z2++;
+
+if (z>0){//if block exist
+Polygon p= new Polygon(); //counter-clock
+p.addPoint(0*d+xd, 0*d+yd);
+p.addPoint(0*d+xd, 2*d+yd);
+p.addPoint(2*d+xd, 2*d+yd);
+p.addPoint(2*d+xd, 0*d+yd);
+
+if (z2<side*side*6+1&&z2>side*side*5)
+g.setColor(Color.red);
+if (z2<side*side*5+1&&z2>side*side*4)
+g.setColor(Color.green);
+if (z2<side*side*4+1&&z2>side*side*3)
+g.setColor(Color.yellow);
+if (z2<side*side*3+1&&z2>side*side*2)
+g.setColor(Color.blue);
+if (z2<side*side*2+1&&z2>side*side*1)
+g.setColor(Color.pink);
+if (z2<side*side*1+1)
+g.setColor(Color.orange);
+g.fillPolygon(p);
+
+
+if (z>1){//gravel
+g.setColor(Color.white);
+g.fillRect(xd+d+4, yd+1*d, gsize, gsize);
+
+g.setColor(Color.black);
+g.fillRect(xd+1*d-4, yd+1*d, gsize, gsize);
+}
+
+}
+
+xd=xd-2*d-fatside;
+
+}//first line end
+xd=side*d*2+fatside*side-2*d; 
+yd=yd+2*d+fatside;
+}//first square end
+xd=side*d*2+fatside*side-2*d; 
+yd=side*d*1+fatside*side-4*d;
+}//cube end
+d=dcopy;
+}}//if roll = 0 yaw = 0 or 90 or 180 or 270 end
+
+
+}//if roll = 45 0 end
+
+}
+}
+
+
+Sol(){
+jFrame = new JFrame();
+jFrame.setTitle ("Isometric cubes Java8 by OlegTim");
+jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+int tempmd =d; d=9;
+
+Solar p1 = new Solar(); 
+
+
+JPanel panel = new JPanel();
+ panel.setLayout(new GridLayout(side*side,side,1,1));
+
+int count=0; int rowc=0;
+for (int i = 0; i < side*side*side ; i++) {//
+JButton button = new JButton(); 
+button.setPreferredSize(new Dimension(2*d, 2*d));
+
+int bt = side*side*side-i-1;
+
+//bt name start
+
+bt=bt-side*(side-1)+rowc*side;
+count++;
+
+if (count>side-1){
+count=0;
+rowc=rowc+2;
+if (rowc>(side-1)*2){
+rowc=0;
+}
+}
+
+// bt name end
+
+button.setName(""+bt);
+
+if (list.get(bt)<1)
+button.setBackground(Color.white);
+
+if (list.get(bt)>0){
+if (bt<side*side*6&&bt>side*side*5-1)
+button.setBackground(Color.red);
+if (bt<side*side*5&&bt>side*side*4-1)
+button.setBackground(Color.green);
+if (bt<side*side*4&&bt>side*side*3-1)
+button.setBackground(Color.yellow);
+if (bt<side*side*3&&bt>side*side*2-1)
+button.setBackground(Color.blue);
+if (bt<side*side*2&&bt>side*side*1-1)
+button.setBackground(Color.pink);
+if (bt<side*side*1)
+button.setBackground(Color.orange);
+}
+
+
+if (list.get(bt)>1){
+button.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
+}
+
+button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+String s = ((JComponent) e.getSource()).getName();
+
+  int a = Integer.parseInt(s);
+//int b = list.get(a);
+blmove();
+list.set(a, brush);
+phcal();
+} 
+ });
+
+panel.add(button);
+}//
+
+
+JPanel panel2 = new JPanel();
+ panel2.setLayout(new GridLayout(side*side,1,1,1));
+for (int i = 0; i < side*side ; i++) {//
+JButton button = new JButton(); 
+button.setPreferredSize(new Dimension(5, 2*d));
+button.setEnabled(false);
+
+if (i<side*6&&i>side*5-1)
+button.setBackground(Color.orange);
+if (i<side*5&&i>side*4-1)
+button.setBackground(Color.pink);
+if (i<side*4&&i>side*3-1)
+button.setBackground(Color.blue);
+if (i<side*3&&i>side*2-1)
+button.setBackground(Color.yellow);
+if (i<side*2&&i>side*1-1)
+button.setBackground(Color.green);
+if (i<side*1)
+button.setBackground(Color.red);
+
+panel2.add(button);
+}
+
+
+JPanel panel4 = new JPanel();
+panel4.setLayout(new GridLayout(side*side,1,1,1));
+
+topv = new JToggleButton("top switch");
+if (roll<1){
+topv.setBorder(BorderFactory.createLineBorder(Color.BLUE, 4));
+}else
+{
+topv.setBorder(BorderFactory.createLineBorder(Color.WHITE, 0));
+}
+topv.addActionListener(this);
+panel4.add(topv);
+
+
+String rollt2text;
+if (roll==0)
+{rollt2text="top view";}
+else{rollt2text="side view";}
+
+JLabel rollt2= new JLabel(rollt2text);
+panel4.add(rollt2);
+
+JButton L = new JButton("<-");
+L.setPreferredSize(new Dimension(4*d, 2*d));
+L.addActionListener(this);
+panel4.add(L);
+
+yawt= new JLabel(""+yaw+"°");
+panel4.add(yawt);
+
+JButton R = new JButton("->");
+R.setPreferredSize(new Dimension(4*d, 2*d));
+R.addActionListener(this);
+panel4.add(R);
+
+JLabel rrr2= new JLabel("");
+panel4.add(rrr2);
+
+JRadioButton empty = new JRadioButton("empty");
+if (brush == 0){
+empty.setSelected(true);}
+panel4.add(empty);
+JRadioButton rock = new JRadioButton("rock");
+if (brush == 1){
+rock.setSelected(true);}
+panel4.add(rock);
+JRadioButton gravel = new JRadioButton("gravel");
+if (brush == 2){
+gravel.setSelected(true);}
+panel4.add(gravel);
+
+ ButtonGroup group = new ButtonGroup();
+ group.add(empty);
+ group.add(rock);
+ group.add(gravel);
+
+empty.addActionListener(this); 
+gravel.addActionListener(this); 
+rock.addActionListener(this); 
+
+JLabel rollt3= new JLabel(" ");
+panel4.add(rollt3);
+
+JButton all = new JButton("all");
+all.addActionListener(this);
+panel4.add(all);
+
+JLabel rrr3= new JLabel("");
+panel4.add(rrr3);
+
+JButton square1 = new JButton("square1");
+square1.setBackground(Color.red);
+square1.addActionListener(this);
+panel4.add(square1);
+
+JButton square2 = new JButton("square2");
+square2.setBackground(Color.green);
+square2.addActionListener(this);
+panel4.add(square2);
+
+JButton square3 = new JButton("square3");
+square3.setBackground(Color.yellow);
+square3.addActionListener(this);
+panel4.add(square3);
+
+JButton square4 = new JButton("square4");
+square4.setBackground(Color.blue);
+square4.addActionListener(this);
+panel4.add(square4);
+
+JButton square5 = new JButton("square5");
+square5.setBackground(Color.pink);
+square5.addActionListener(this);
+panel4.add(square5);
+
+JButton square6 = new JButton("square6");
+square6.setBackground(Color.orange);
+square6.addActionListener(this);
+panel4.add(square6);
+
+
+JPanel panel5 = new JPanel();
+panel5.setLayout(new GridLayout(side*side,1,1,1));
+
+String[] maps = new String[] {
+"select_map", 
+"castle",
+"wall", 
+"cave",
+"bridge",
+"tower"
+};
+boxmaps = new JComboBox<>(maps);
+boxmaps.addActionListener(
+                new ActionListener(){
+                    public void actionPerformed(ActionEvent e){
+                        JComboBox combo = (JComboBox)e.getSource();
+                        String el = (String)combo.getSelectedItem();
+mpnum = el;
+mpmet();
+                    }
+                }            
+        );
+
+panel5.add(boxmaps); 
+
+JButton show = new JButton("show");
+show.addActionListener(this);
+panel5.add(show);
+
+smallField = new JTextField(4);
+panel5.add(smallField);
+
+JButton read = new JButton("read");
+read.addActionListener(this);
+panel5.add(read);
+
+JLabel rrr4= new JLabel("");
+panel5.add(rrr4);
+
+JButton borders = new JButton("borders");
+borders.addActionListener(this);
+if (fatside>0){
+borders.setBorder(BorderFactory.createLineBorder(Color.BLUE, 4));
+}else
+{
+borders.setBorder(BorderFactory.createLineBorder(Color.WHITE, 0));
+}
+panel5.add(borders);
+
+JButton info = new JButton("info");
+info.addActionListener(this);
+panel5.add(info);
+
+JLabel rrr5= new JLabel("");
+panel5.add(rrr5);
+
+JButton physics = new JButton("physics");
+physics.addActionListener(this);
+if (phflag>0){
+physics.setBorder(BorderFactory.createLineBorder(Color.BLUE, 4));
+}else
+{
+physics.setBorder(BorderFactory.createLineBorder(Color.WHITE, 0));
+}
+panel5.add(physics);
+
+JLabel rrr6= new JLabel("");
+panel5.add(rrr6);
+
+JButton undo = new JButton("undo");
+undo.addActionListener(this);
+panel5.add(undo);
+
+//
+JPanel panel0 = new JPanel();
+panel0.setLayout(new GridLayout(2,1,1,1));
+panel0.add(panel);
+JButton zzz = new JButton("");
+zzz.setEnabled(false);
+panel0.add(zzz);
+
+JPanel panel01 = new JPanel();
+panel01.setPreferredSize(new Dimension(5, side*side*4*d+2*side*side));
+panel01.setLayout(new GridLayout(2,1,1,1));
+panel01.add(panel2);
+JButton zzz2 = new JButton("");
+zzz2.setEnabled(false);
+panel01.add(zzz2);
+
+JPanel panelbl = new JPanel();
+JLabel rolltbl= new JLabel("  ");
+panelbl.add(rolltbl);
+
+p1.add(panel01);
+p1.add(panel0);
+p1.add(panel4);
+p1.add(panelbl);
+p1.add(panel5);
+jFrame.add(p1);
+
+jFrame.setSize(1024,740);
+//jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+jFrame.setResizable(false);
+jFrame.setVisible(true);
+d=tempmd;
+}
+
+public static void main(String[] args) {new Sol(); }
+
+public void actionPerformed(ActionEvent e) {
+
+if(e.getActionCommand().equals("empty"))
+{
+brush = 0;
+}
+
+if(e.getActionCommand().equals("rock"))
+{
+brush = 1;
+}
+
+if(e.getActionCommand().equals("gravel"))
+{
+brush = 2;
+}
+
+if(e.getActionCommand().equals("->"))
+{
+yaw=yaw+45;
+yawmet();
+}
+
+
+if(e.getActionCommand().equals("<-"))
+{
+yaw=yaw-45;
+yawmet();
+}
+
+if(e.getActionCommand().equals("up"))
+{
+roll=roll-45;
+rollmet();
+}
+
+if(e.getActionCommand().equals("down"))
+{
+roll=roll+45;
+rollmet();
+}
+
+if(e.getActionCommand().equals("all"))
+{
+blmove();
+list.clear();
+for (int i = 0; i < side*side*side ; i++) {
+list.add(brush);
+}
+phcal();
+}
+
+if(e.getActionCommand().equals("square1"))
+{
+blmove();
+int a = side*side*side-1;
+for (int i = 0; i < side*side ; i++) {
+list.set(a, brush);
+a--;
+}
+phcal();
+}
+
+if(e.getActionCommand().equals("square2"))
+{
+blmove();
+int a = side*side*side-1-side*side*1;
+for (int i = 0; i < side*side ; i++) {
+list.set(a, brush);
+a--;
+}
+phcal();
+}
+
+if(e.getActionCommand().equals("square3"))
+{
+blmove();
+int a = side*side*side-1-side*side*2;
+for (int i = 0; i < side*side ; i++) {
+list.set(a, brush);
+a--;
+}
+phcal();
+}
+
+if(e.getActionCommand().equals("square4"))
+{
+blmove();
+int a = side*side*side-1-side*side*3;
+for (int i = 0; i < side*side ; i++) {
+list.set(a, brush);
+a--;
+}
+phcal();
+}
+
+if(e.getActionCommand().equals("square5"))
+{
+blmove();
+int a = side*side*side-1-side*side*4;
+for (int i = 0; i < side*side ; i++) {
+list.set(a, brush);
+a--;
+}
+phcal();
+}
+
+if(e.getActionCommand().equals("square6"))
+{
+blmove();
+int a = side*side*side-1-side*side*5;
+for (int i = 0; i < side*side ; i++) {
+list.set(a, brush);
+a--;
+}
+phcal();
+}
+
+if(e.getActionCommand().equals("show"))
+{
+smallField.setText("");
+String temp="";
+for (int i = 0; i <list.size(); i++)
+   
+temp = temp+list.get(i);
+
+smallField.setText(temp);
+
+}
+
+if(e.getActionCommand().equals("read"))
+{
+blmove();
+readmet();
+}
+
+if(e.getActionCommand().equals("top switch"))
+{
+if (roll==45){
+roll=0;}
+else{
+roll=45;
+}
+redraw();
+}
+
+if(e.getActionCommand().equals("physics"))
+{
+blmove();
+if (phflag>0)
+{phflag=0; redraw();} 
+else {
+phflag=1; 
+phcal();
+}
+}
+
+if(e.getActionCommand().equals("borders"))
+{
+if (fatside>0)
+{fatside=0;}
+else
+{fatside=2;}
+redraw();
+}
+
+if(e.getActionCommand().equals("info"))
+{
+
+JOptionPane.showMessageDialog(null, 
+ new String[] {"Rock archs 1-2 wide, columns 1-2 tall or becomes gravel, which slides and fall.",
+"Save/load via text line, try ctrl c  and ctrl v",
+"1024*768 resolution and more recommended. Best wishes, OlegTim."},
+"info", 
+JOptionPane.PLAIN_MESSAGE);
+
+}
+
+if(e.getActionCommand().equals("undo"))
+{
+for (int i = 0; i < side*side*side ; i++) {//copy list 3
+int inv = list3.get(i);
+list.set(i,inv);
+}
+redraw();
+}
+
+
+}
+
+public void redraw(){
+jFrame.getContentPane().removeAll(); //clear GUI
+jFrame.dispose();
+new Sol (); //GUI with new info
+}
+
+public void yawmet(){
+if (yaw>359)
+yaw=yaw-360;
+if (yaw<0)
+yaw=yaw+360;
+String s=""+yaw+"°";
+
+if (yaw<10)
+s=s+"   ";
+if (yaw<100)
+s=s+"   ";
+
+yawt.setText(s);
+redraw();
+}
+
+public void rollmet(){
+if (roll>359)
+roll=roll-360;
+if (roll<0)
+roll=roll+360;
+String s=""+roll+"°";
+
+if (roll<10)
+s=s+"   ";
+if (roll<100)
+s=s+"   ";
+
+rollt.setText(s);
+redraw();
+}
+
+public void mpmet(){
+if (mpnum.equals("select_map")) {  
+//JOptionPane.showMessageDialog(null, "select map", "advice", JOptionPane.PLAIN_MESSAGE);
+}
+else{
+String temps="";
+blmove();
+if (mpnum.equals("castle")) {  
+temps="111111111111111111111111111111111111111110111110111110111110111110000000111110111110111110111110111110000000111100111100111100111100000000000000110000110100000000010100000000000000110000110000000000000000000000000000";
+}
+if (mpnum.equals("wall")) {  
+temps="222200222200222000222000222200222200222100222100222100222100222100222100222000222000220000220000222000222000221000221000221000221000221000221000220000220000200000200000220000220000210000210000210000210000210000210000";
+}
+if (mpnum.equals("cave")) {  
+temps="111111111111000001000001112001111001111111111111011001011001111111111111111111111111111111111111111111111111111111111100111101101001101011101011101111101101101111101111101111101111111111111111111111111111111111111111";
+}
+if (mpnum.equals("bridge")) {  
+temps="000111000000000000101111101000101111000111000111000111111111111111111111000010000010000000000000100110000010000010000010000010000010111110000010000000000000000000000000000000000000000000000000000000000000000000000000";
+}
+if (mpnum.equals("tower")) {  
+temps="000100001010010001001010000100200000000100001110011011001110000100000000000000000100001110000100000000000000000000000100001110000100000000000000000000000000000100000000000000000000000000000000000100000000000000000000";
+}
+smallField.setText(temps);
+readmet();
+}}//mpmet end
+
+public void readmet(){
+String temp=smallField.getText();
+
+if (temp.length()== side*side*side){
+
+smallField.setText("");
+list.clear();
+
+char[] chars = temp.toCharArray();
+
+for (int i = 0; i < chars.length; i++) {
+ String z =  String.valueOf(chars[i]);
+int z3=0;
+try{
+    z3 =  Integer.parseInt(z);
+}
+catch (NumberFormatException e2){
+
+list.clear();
+for (int i4 = 0; i4 < side*side*side ; i4++) {
+list.add(0);
+}
+
+redraw();
+JOptionPane.showMessageDialog(null, "error: lines seems invalid", "not nums", JOptionPane.PLAIN_MESSAGE);
+}
+
+list.add(z3);
+}
+
+phcal();
+}
+else{
+JOptionPane.showMessageDialog(null, "error: lines seems invalid", "wrong size", JOptionPane.PLAIN_MESSAGE);
+smallField.setText("");
+jFrame.setVisible(true);
+}
+}//readmet end
+
+public void blmove(){
+for (int i = 0; i < side*side*side ; i++) {//copy list 1
+int inv = list.get(i);
+list3.set(i,inv);
+}
+}
+
+public void phcal(){
+if (phflag>0){
+phcal2();
+}else{redraw();}
+}//phcal end
+
+public void phcal2(){
+for (int i = 0; i < side*side*side ; i++) {//copy list 1
+int inv = list.get(i);
+list4.set(i,inv);
+}
+
+for (int i = list.size()-1; i >=0 ; i--) {//reverse start
+
+if (i-side*side>=0&&list.get(i)==1){//rock start
+//if rock and exist down lvl
+int stay=1;
+
+int is= (int) i/(side*side);
+int ir= (int) i/side;
+
+int es= (int) (i+1)/(side*side);
+int er= (int) (i+1)/side;
+int es2= (int) (i+2)/(side*side);
+int er2= (int) (i+2)/side;
+
+int ws= (int) (i-1)/(side*side);
+int wr= (int) (i-1)/side;
+int ws2= (int) (i-2)/(side*side);
+int wr2= (int) (i-2)/side;
+
+int ns= (int) (i+side)/(side*side);
+int ns2= (int) (i+2*side)/(side*side);
+
+int ss= (int) (i-side)/(side*side);
+int ss2= (int) (i-2*side)/(side*side);
+
+if (list.get(i-side*side)==0){//if under rock is void start
+stay=0;
+
+if (i+1<list.size() && i+1-side*side>=0 &&i-1<list.size() && i-1-side*side>=0 ){//if i+\-1 arc we
+if (list.get(i+1)==1&&list.get(i-1)==1&&is==es&&is==ws&&ir==er&&ir==wr
+&&list.get(i+1-side*side)>0 &&list.get(i-1-side*side)>0){
+stay++;
+}}
+
+if (i+2<list.size()   && i-1-side*side>=0 ){//if i+\-2 arc we L
+if (list.get(i+2)==1&&list.get(i+1)==1&&list.get(i-1)==1&&is==es2&&is==ws&&ir==er2&&ir==wr
+&&list.get(i+2-side*side)>0&&list.get(i-1-side*side)>0){
+stay++;
+}}
+
+if (i+1<list.size() && i-2-side*side>=0 ){//if i+\-2 arc we R
+if (list.get(i+1)==1&&list.get(i-1)==1&&list.get(i-2)==1&&is==es&&is==ws2&&ir==er&&ir==wr2
+&&list.get(i+1-side*side)>0 &&list.get(i-2-side*side)>0){
+stay++;
+}}
+
+if (i+side<list.size()  && i-side-side*side>=0 ){//if i+\-1 arc ns
+if (list.get(i+side)==1&&list.get(i-side)==1&&is==ns&&is==ss
+&&list.get(i+side-side*side)>0 &&list.get(i-side-side*side)>0){
+stay++;
+}}
+
+if (i+2*side<list.size()  && i-side-side*side>=0 ){ //if i+\-2 arc ns L
+if (list.get(i+2*side)==1&&list.get(i+side)==1&&list.get(i-side)==1&&is==ns2&&is==ss
+&&list.get(i+2*side-side*side)>0 &&list.get(i-side-side*side)>0){
+stay++;
+}}
+
+if (i+side<list.size()  && i-2*side-side*side>=0 ){ //if i+\-2 arc ns R
+if (list.get(i+side)==1&&list.get(i-side)==1&&list.get(i-2*side)==1&&is==ns&&is==ss2
+&&list.get(i+side-side*side)>0 &&list.get(i-2*side-side*side)>0){
+stay++;
+}}
+
+}//if under rock void end
+
+//if rock stands too high start
+if(i-2*side*side>=0){
+
+if(i+1<list.size()&&is==es&&ir==er&&list.get(i+1)==0&&list.get(i+1-side*side)==0&&list.get(i+1-2*side*side)==0){
+stay=0;}
+
+if(i-1-2*side*side>=0&&is==ws&&ir==wr&&list.get(i-1)==0&&list.get(i-1-side*side)==0&&list.get(i-1-2*side*side)==0){
+stay=0;}
+
+if(i+side<list.size()&&is==ns&&list.get(i+side)==0&&list.get(i+side-side*side)==0&&list.get(i+side-2*side*side)==0){
+stay=0;}
+
+if(i-side-2*side*side>=0&&is==ss&&list.get(i-side)==0&&list.get(i-side-side*side)==0
+&&list.get(i-side-2*side*side)==0){
+stay=0;}
+
+}
+//if rock stands too high end
+
+
+if (stay==0)
+list.set(i,2);
+}//rock end
+
+
+//if gravel stands on smth slide start
+if (i-side*side>=0 && list.get(i)==2 && list.get(i-side*side)>0){
+
+int row= (int) i/(side*side);
+int row3= (int) i/side;
+
+int a=0;
+int arow2= (int) (i+1)/(side*side);
+int arow4= (int) (i+1)/side;
+if(i+1<list.size()&&i+1>0&&list.get(i+1)==0&&list.get(i+1-side*side)==0&&row==arow2&&row3==arow4){//if i+1 suits
+a++;
+}
+
+int b=0;
+int brow2= (int) (i-1)/(side*side);
+int brow4= (int) (i-1)/side;
+if (i-1<list.size() && i-1-side*side>=0 ){
+if (list.get(i-1)==0&&list.get(i-1-side*side)==0&&row==brow2&& row3==brow4){//if i-1 suits
+b++;
+}
+}
+
+int d=0;
+int drow2= (int) (i+side)/(side*side);
+if (i+side<list.size() && i+side-side*side>=0 ){
+if (list.get(i+side)==0&&list.get(i+side-side*side)==0&&row==drow2){//if i+side suits
+d++;
+}
+}
+
+int e=0;
+int erow2= (int) (i-side)/(side*side);
+if (i-side<list.size() && i-side-side*side>=0 ){
+if (list.get(i-side)==0&&list.get(i-side-side*side)==0&&row==erow2){//if i-side suits
+e++;
+}
+}
+
+int total = a+b+d+e;
+
+if (total>0){//if total>0 start
+double adoub = (double) 1.0*a;
+double bdoub = (double) 2.0*b;
+double ddoub = (double) 3.0*d;
+double edoub = (double) 4.0*e;
+double rnd = (double)1.0+ ( Math.random() * 4.0 );
+
+ArrayList<Double> list5 = new ArrayList<Double>();
+if (adoub>0)
+list5.add(Math.abs(rnd-adoub));
+if (bdoub>0)
+list5.add(Math.abs(rnd-bdoub));
+if (ddoub>0)
+list5.add(Math.abs(rnd-ddoub));
+if (edoub>0)
+list5.add(Math.abs(rnd-edoub));
+Collections.sort(list5);  
+double minnum = list5.get(0); 
+
+if (a>0&&minnum==Math.abs(rnd-adoub)){
+list.set(i,0);
+list.set(i+1,2);
+a=0; b=0; d=0; e=0;
+}
+
+if (b>0&&minnum==Math.abs(rnd-bdoub)){
+list.set(i,0);
+list.set(i-1,2);
+a=0; b=0; d=0; e=0;
+}
+
+if (d>0&&minnum==Math.abs(rnd-ddoub)){
+list.set(i,0);
+list.set(i+side,2);
+a=0; b=0; d=0; e=0;
+}
+
+if (e>0&&minnum==Math.abs(rnd-edoub)){
+list.set(i,0);
+list.set(i-side,2);
+a=0; b=0; d=0; e=0;
+}
+
+}//if total>0 end
+
+}//if gravel stands on smth slide end
+
+if (i-side*side>=0 && list.get(i)==2 && list.get(i-side*side)==0){//gravel falls
+list.set(i,0);
+list.set(i-side*side,2);}//gravel end
+
+}//reverse end
+
+phcalcomp();
+}//phcal2 end
+
+public void phcalcomp(){
+int compare=0;
+for (int i = 0; i < list.size(); i++) { 
+if (list4.get(i)!=list.get(i)){
+compare++;
+break;
+}
+}
+
+if (compare!=0){
+phcal();
+}
+else{phcalfin();}
+}
+
+public void phcalfin(){
+redraw();
+}
+
+}
