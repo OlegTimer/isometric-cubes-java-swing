@@ -1,0 +1,684 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.*;
+
+public class Sol extends JPanel  {//f10 to quit
+    public static int yaw=0;
+    public static int roll=0;
+    static int blocksmumwidth = 15;//
+    static int mapheight = 12;//+2. n blocks +ground+air
+    static int mapwidth = 20;
+    static int maplength = 20;
+    public static int ewpos = 0;
+    public static int nspos = 0;
+    public static int zpos = mapheight;
+    public static int d=51; //block side
+    public static int xd=0;
+    public static int yd=0;
+    public static int globalz=0;
+    public static int grawelwidth=2;
+    public static int bordheight = 10; // d/bordheight  (10)
+    public static int map3[][][];
+    public static int map2[][][];
+    public static int map[][][];
+    public static int col1,col2,col3;
+
+    public static int phflag=1;
+    static   JFrame jFrame;
+
+    static{//start field
+        map3 = new int[mapheight][mapwidth][maplength];
+        map2 = new int[mapheight][mapwidth][maplength];
+        int i, j, k;
+        for (i = 0; i < mapheight; i++)
+            for (j = 0; j < mapwidth; j++)
+                for (k = 0; k < maplength; k++)
+                    if (i==mapheight-1||i==mapheight-2)
+                    {
+                        map2[i][j][k] = 0;
+                    }else{
+                        map2[i][j][k] = 1; //0-9 z blocks
+                    }//
+        map2[0][0][0]=0;  map2[0][1][0]=0;  map2[0][0][1]=0;
+        map2[9][0][0] = 0;  map2[9][1][0] =0;  map2[9][1][9] = 998_001;  map2[9][1][2] = 0;  map2[9][1][4] = 0; map2[9][1][6] = 0;
+        map2[9][3][2] = 0;  map2[9][3][3] = 0;     map2[9][4][2] = 0;  map2[9][4][3] = 0;  map2[9][6][6] = 0;
+
+        map2[8][0][0] = 0;  map2[8][1][0] =0; map2[8][1][1] = 0;        map2[8][1][2] = 0;   map2[8][1][4] = 0;
+        map2[8][2][2] =0; map2[8][3][2] =0;
+        map2[7][0][0] = 0;    map2[7][1][0] = 0;                         map2[7][1][2] = 0;
+        map2[6][0][0] = 0;                            map2[6][1][2] = 0;
+        map2[5][0][0] = 0;
+        map2[4][0][0] = 0;
+        map2[3][0][0] = 0;
+        map2[2][0][0] = 0;
+        map2[1][0][0] = 0;
+        map2[0][0][0] = 0;
+
+        map2[9][6][6] = 0; map2[9][8][6] = 0; map2[9][8][4] = 0; map2[9][6][7] = 0;
+        map2[8][7][7] = 0; map2[9][8][7] = 0; map2[8][8][7] = 0;
+        map2[8][6][7] = 0; map2[8][6][6] = 0; map2[8][8][6] = 0; map2[8][8][4] = 0;
+        map2[8][7][6] = 0;  map2[8][8][5] = 0;
+
+        map2[9][8][0] = 0;     map2[8][8][0] = 0;  map2[7][8][0] = 0;
+        map2[9][8][1] = 0; map2[9][7][1] = 0;
+        map2[8][8][1] = 0;   map2[8][8][2] = 0;  map2[8][8][3] = 0;
+
+        map2[10][4][6] = 3;    map2[11][3][6] = 4; map2[9][4][7] = 3; map2[11][4][7] = 4;
+
+        map2[9][5][5] = 0;
+
+        map2[9][12][5] = 2;     map2[9][5][12] = 2; map2[9][12][12] = 2;
+        map2[9][0][mapwidth-1] = 2;     map2[9][maplength-1][0] = 2;
+        map2[9][maplength-1][mapwidth-1] = 2;
+
+        map2[9][4][0] = 0;  map2[8][4][0] = 0; map2[7][4][0] = 0; map2[6][4][0] = 0;
+        map2[10][4][0] = 2;  map2[9][4][0] = 3;
+
+        map2[9][9][9] = 1;    map2[8][9][9] = 3;  map2[7][9][9] = 0; map2[6][9][9] = 0; map2[5][9][9] = 0; map2[4][9][9] = 0;
+        map2[3][9][9] = 0; map2[2][9][9] = 0; map2[1][9][9] = 0; map2[0][9][9] = 0; map2[0][10][10] = 3; map2[1][11][11] = 3;
+    }//
+
+    static{int i, j, k;//1 & 2 to rock and stone start
+        for (i = 0; i < mapheight; i++)
+            for (j = 0; j < mapwidth; j++)
+                for (k = 0; k < maplength; k++) {
+                    if (map2[i][j][k] ==1){
+                        map2[i][j][k] = 998000;}
+                    if (map2[i][j][k] ==2){
+                        map2[i][j][k] = 999000;}}}//1 & 2 to rock and stone end
+    public  class Solar extends JPanel {
+        @Override
+        public void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (yaw==0&&roll==0){//
+
+                map = new int[mapheight][blocksmumwidth][blocksmumwidth];
+                int i0, j0, k0;
+                for (i0 = 0; i0 < mapheight; i0++)
+                    for (j0 = 0; j0 < blocksmumwidth; j0++)
+                        for (k0 = 0; k0 < blocksmumwidth; k0++) {
+                            map[i0][j0][k0] =map2[i0][j0+nspos][k0+ewpos];
+                        }
+
+                Polygon p0 = new Polygon();
+                p0.addPoint(0, 0);
+                p0.addPoint(0, d*blocksmumwidth);
+                p0.addPoint(d*blocksmumwidth, d*blocksmumwidth);
+                p0.addPoint(d*blocksmumwidth, 0);
+                if (zpos==mapheight) {
+                    g.setColor(new Color(163, 73, 164));
+                    g.fillPolygon(p0);
+                }
+                else{
+                    g.setColor(new Color(255, 255, 255));
+                    g.fillPolygon(p0);
+                }
+
+
+                int f3= (int)d/bordheight;
+                int hmap[][] = new int [blocksmumwidth][blocksmumwidth];
+                for (int i2 = 0; i2 < blocksmumwidth; i2++) {
+                    for (int i = 0; i < blocksmumwidth; i++) {
+
+                        int z=0;
+                        for (int i3 = mapheight-3; i3 > -1; i3--) {
+                            z=i3;
+                            if(map[i3][i2][i]>997_999)
+                                break;
+                        }
+
+                        if (zpos!=mapheight){z=zpos;}
+
+                        globalz = z;
+                        colormet();
+
+                        if (z==0 && map[0][i2][i]!=0){
+                            col1=0;col2=20;col3=255;
+                        }
+                        hmap[i2][i]= z;
+                        if (z==0 && map[0][i2][i]<998000){
+                            col1=163;col2=73;col3=164;
+                            hmap[i2][i]= -1;
+                        }
+
+    if (map[z][i2][i]>=997_999) {
+                            Polygon p = new Polygon(); //counter-clock
+                            p.addPoint(0 * d + xd, 0 * d + yd);
+                            p.addPoint(0 * d + xd, 1 * d + yd);
+                            p.addPoint(1 * d + xd, 1 * d + yd);
+                            p.addPoint(1 * d + xd, yd);
+                            g.setColor(new Color(col1, col2, col3));
+                            g.fillPolygon(p);
+                        }
+
+                        if(map[z][i2][i]>=999_000) {//gravel draw start
+                            Graphics2D g2d = (Graphics2D) g;
+                            int w = (int) d/6; int w2=0; int y2=0;
+                            for (int i5 = 0; i5 < 3; i5++) {
+                                for (int i4 = 0; i4 < 3; i4++) {
+                                    g2d.setColor(new Color(0, 0, 0));
+                                    g2d.fillOval(w2 + xd, y2 + yd, 2 * w, 2 * w);
+                                    g2d.setColor(new Color(col1, col2, col3));
+    g2d.fillOval(w2 + xd + grawelwidth, y2 + yd + grawelwidth, 2 * w - 2 * grawelwidth,
+            2 * w - 2 * grawelwidth);
+                                    w2=w2+2*w;
+                                }
+                                y2=y2+2*w;
+                                w2=0;
+                            }
+                        }//gravel draw end
+                        if(map[z][i2][i]>997_999&&map[z][i2][i]!=998_000&&map[z][i2][i]!=999_000){//if non-stnd block start
+                            int z2 = map[z][i2][i];
+                            int r3 = z2%1000;
+                            Graphics2D g2d = (Graphics2D) g;
+                            if (r3==1){
+                                g2d.setColor(new Color(163, 73, 164));
+                                g2d.drawOval( xd,  yd, d, d);
+                                g2d.drawOval( xd+1,  yd+1, d-2, d-2);
+                                g2d.drawOval( xd+2,  yd+2, d-4, d-4);
+                            }
+
+                        }//if non-stnd block end
+                        xd = xd + d;
+                    }
+                    xd = 0;
+                    yd = yd + d;
+                }//blocks draw end
+
+                xd=-f3;yd=0;
+                for (int j2 = 0; j2 < hmap.length; j2++) {//height connectors draw start
+                    for (int j = 0; j < hmap[j2].length; j++) {
+                        int f=777; int f2=777;
+                        try {f= hmap[j2][j-1];}catch(Exception e){}
+                        try {f2= hmap[j2-1][j];}catch(Exception e){}
+                        if (f!=777){//left-right connectors start
+                            if (hmap[j2][j]-f>1) {//tall r start
+                                int z = hmap[j2][j];
+                                if(hmap[j2][j]>0&&map[z][j2][j]>997_999&&map[z][j2][j]<999_000&&map[z-1][j2][j]==0){
+                                    Graphics2D g2d = (Graphics2D) g;
+                                    g2d.setColor(new Color(255, 255, 255));
+                                    g2d.fillOval( xd,  yd+f3, 2*f3, 8*f3);
+                                    g.setColor(new Color(0, 0, 0));
+                                    g.drawOval(xd,  yd+f3, 2*f3, 8*f3);
+                                }
+                                else {
+                                    Polygon p = new Polygon();
+                                    p.addPoint(2 * f3 + xd, yd+f3);
+                                    p.addPoint(xd, 5 * f3 + yd);
+                                    p.addPoint(2 * f3 + xd, d + yd-f3);
+                                    g.setColor(new Color(0, 0, 0));
+                                    g.fillPolygon(p);
+                                }
+                            }//tallr end
+
+                            if (f-hmap[j2][j]>1) {//tall l start
+                                int z = hmap[j2][j-1];
+
+                                if(hmap[j2][j-1]>0&&map[z][j2][j-1]>997_999&&map[z][j2][j-1]<999_000&&map[z-1][j2][j-1]==0){
+                                    Graphics2D g2d = (Graphics2D) g;
+                                    g2d.setColor(new Color(255, 255, 255));
+                                    g2d.fillOval( xd,  yd+f3, 2*f3, 8*f3);
+                                    g.setColor(new Color(0, 0, 0));
+                                    g.drawOval(xd,  yd+f3, 2*f3, 8*f3);
+                                }
+                                else {
+                                    Polygon p = new Polygon();
+                                    p.addPoint(xd, yd+f3);
+                                    p.addPoint(xd, d + yd-f3);
+                                    p.addPoint(2 * f3 + xd, 5 * f3 + yd);
+                                    g.setColor(new Color(0, 0, 0));
+                                    g.fillPolygon(p);
+                                }
+                            }//tall l end
+
+                            if ((hmap[j2][j]-f)==1) {// r start
+                                Polygon p = new Polygon();
+                                p.addPoint(  2*f3+xd,  yd+f3);
+                                p.addPoint( xd, 5*f3 + yd);
+                                p.addPoint(2*f3 + xd,d+ yd-f3);
+                                g.setColor(new Color(255, 255, 255));
+                                g.fillPolygon(p);
+                            } //r end
+
+                            if (f-hmap[j2][j]==1) {//l start
+                                Polygon p = new Polygon();
+                                p.addPoint(  xd,  yd+f3);
+                                p.addPoint( xd, d + yd-f3);
+                                p.addPoint(2*f3 + xd,5*f3+ yd);
+                                g.setColor(new Color(255, 255, 255));
+                                g.fillPolygon(p);
+                            }//l end
+                        }//left-right connectors end
+
+                        if (f2!=777){//north-south connectors start
+                            xd=xd+f3; yd=yd-f3;
+                            if (hmap[j2][j]-f2>1) {//tall n start
+                                int z = hmap[j2][j];
+                                if(hmap[j2][j]>0&&map[z][j2][j]>997_999&&map[z][j2][j]<999_000&&map[z-1][j2][j]==0){
+                                    Graphics2D g2d = (Graphics2D) g;
+                                    g2d.setColor(new Color(255, 255, 255));
+                                    g2d.fillOval( xd+f3,  yd, 8*f3, 2*f3);
+                                    g.setColor(new Color(0, 0, 0));
+                                    g.drawOval( xd+f3,  yd, 8*f3, 2*f3);
+                                }
+                                else {
+                                    Polygon p = new Polygon();
+                                    p.addPoint(5*f3+  xd,  yd);
+                                    p.addPoint( xd+f3, 2*f3 + yd);
+                                    p.addPoint(d + xd-f3,2*f3+ yd);
+                                    g.setColor(new Color(0, 0, 0));
+                                    g.fillPolygon(p);
+                                }
+                            }//tall n end
+
+                            if (f2-hmap[j2][j]>1) {//tall s start
+                                int z = hmap[j2-1][j];
+                                if(hmap[j2-1][j]>0&&map[z][j2-1][j]>997_999&&map[z][j2-1][j]<999_000&&map[z-1][j2-1][j]==0){
+                                    Graphics2D g2d = (Graphics2D) g;
+                                    g2d.setColor(new Color(255, 255, 255));
+                                    g2d.fillOval( xd+f3,  yd, 8*f3, 2*f3);
+                                    g.setColor(new Color(0, 0, 0));
+                                    g.drawOval( xd+f3,  yd, 8*f3, 2*f3);
+                                }
+                                else {
+                                    Polygon p = new Polygon();
+                                    p.addPoint( xd+f3,  yd);
+                                    p.addPoint(5*f3+ xd, 2*f3 + yd);
+                                    p.addPoint(d-f3 + xd, yd);
+                                    g.setColor(new Color(0, 0, 0));
+                                    g.fillPolygon(p);
+                                }
+                            }//tall s end
+
+                            if (hmap[j2][j]-f2==1) {// n start
+                                Polygon p = new Polygon();
+                                p.addPoint(5*f3+  xd,  yd);
+                                p.addPoint( xd+f3, 2*f3 + yd);
+                                p.addPoint(d-f3 + xd,2*f3+ yd);
+                                g.setColor(new Color(255, 255, 255));
+                                g.fillPolygon(p);
+                            }//n end
+
+                            if (f2-hmap[j2][j]==1) {// s start
+                                Polygon p = new Polygon();
+                                p.addPoint( xd+f3,  yd);
+                                p.addPoint(5*f3+ xd, 2*f3 + yd);
+                                p.addPoint(d -f3+ xd, yd);
+                                g.setColor(new Color(255, 255, 255));
+                                g.fillPolygon(p);
+                            }//s end
+                            xd=xd-f3; yd=yd+f3;
+                        }//north-south connectors end
+
+                        xd = xd + d;
+                    }
+                    xd = -f3;
+                    yd = yd + d;
+
+                }//height connectors draw end
+                xd=0;yd=0;
+
+                for (int i2 = 0; i2 < blocksmumwidth; i2++) {//ground unit start
+                    for (int i = 0; i < blocksmumwidth; i++) {
+                        int z = 0;
+                        for (int i3 = mapheight - 2; i3 > -1; i3--) {
+                            z = i3;
+                            if (map[i3][i2][i] > 2 && map[i3][i2][i] < 998000)
+                                break;}
+
+                        if (zpos!=mapheight){z=zpos;}
+
+                        int z2 = map[z][i2][i]; int go=0;
+                        if (hmap[i2][i] < z&&zpos==mapheight) {go++;}
+                        if (map[z][i2][i] > 2 && map[z][i2][i] < 998000&&zpos!=mapheight) {go++;}
+                        if (go>0) {
+                            if (z2 == 3) {
+                                Polygon p = new Polygon();
+                                p.addPoint((int) d / 2 + xd, 0 + yd + f3);
+                                p.addPoint(xd + f3, 1 * d - f3 + yd);
+                                p.addPoint(1 * d - f3 + xd, d - f3 + yd);
+                                g.setColor(new Color(0, 0, 0));
+                                g.fillPolygon(p);
+
+                                Polygon p2 = new Polygon();
+                                p2.addPoint((int) d / 2 + xd, 0 + yd + f3 + 5);
+                                p2.addPoint(xd + f3 + 5, 1 * d - f3 + yd - 5);
+                                p2.addPoint(1 * d - f3 + xd - 5, d - f3 + yd - 5);
+                                g.setColor(new Color(163, 73, 164));
+                                g.fillPolygon(p2);
+                            }
+                        }
+                        go=0;
+                            xd = xd + d;
+                        }
+                        xd = 0;
+                        yd = yd + d;
+                      }//ground unit  end
+
+                xd=0;yd=0;
+                if (zpos>mapheight-2){
+                    if (zpos==mapheight-1){
+                    g.setColor(new Color(255, 255, 255));
+                    g.fillPolygon(p0);}
+
+                for (int i2 = 0; i2 < blocksmumwidth; i2++) {//air unit start
+                    for (int i = 0; i < blocksmumwidth; i++) {
+                        int z2 = map[mapheight - 1][i2][i];
+                        if (z2 == 4) {
+                            Graphics2D g2d = (Graphics2D) g;
+                            Color c = new Color(0f, 0f, 1f, .5f);
+                            g2d.setColor(c);
+                            g2d.fillOval(xd + f3, yd + 3 * f3, 8 * f3, 4 * f3);
+                            g.setColor(new Color(0, 0, 0));
+                            g.drawOval(xd + f3, yd + 3 * f3, 8 * f3, 4 * f3);
+                        }
+                        xd = xd + d;
+                    }
+                    xd = 0;
+                    yd = yd + d;
+                }  }//air unit start end
+
+            }//if yaw==0&&roll==0 end
+
+        }
+    }
+
+    Sol() {
+        jFrame = new JFrame("strategy");
+
+        redrawmainfield();
+
+        jFrame.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode()==KeyEvent.VK_F10) {
+                    System.exit(0);
+                }
+                if (e.getKeyCode()==KeyEvent.VK_LEFT) {
+                    ewpos--;
+                    fmove();
+                }
+                if (e.getKeyCode()==KeyEvent.VK_RIGHT) {
+                    ewpos++;
+                    fmove();
+                }
+                if (e.getKeyCode()==KeyEvent.VK_UP) {
+                    nspos--;
+                    fmove();
+                }
+                if (e.getKeyCode()==KeyEvent.VK_DOWN) {
+                    //   JOptionPane.showMessageDialog(null, "d", "w", JOptionPane.PLAIN_MESSAGE);
+                    nspos++;
+                    fmove();
+                }
+                if (e.getKeyCode()==KeyEvent.VK_PAGE_UP) {
+                    zpos++;
+                    fmove();
+                }
+                if (e.getKeyCode()==KeyEvent.VK_PAGE_DOWN) {
+                    zpos--;
+                    fmove();
+                }
+                if (e.getKeyCode()==KeyEvent.VK_BACK_SPACE) {
+                    zpos=mapheight;
+                    fmove();
+                }
+
+            }});
+
+        // jFrame.setSize(500, 500);
+        jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        jFrame.setUndecorated(true);
+        jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jFrame.setVisible(true);
+    }
+
+
+    public static void main(String[] args) {
+        new Sol();
+    }
+
+    public void fmove(){
+        if (zpos<0)
+            zpos=0;
+        if (zpos>mapheight)
+            zpos=mapheight;
+        if (ewpos<0)
+            ewpos=0;
+        if (ewpos>mapwidth-blocksmumwidth)
+            ewpos=mapwidth-blocksmumwidth;
+        if (nspos<0)
+            nspos=0;
+        if (nspos>mapwidth-blocksmumwidth)
+            nspos=mapwidth-blocksmumwidth;
+        redrawmainfield();
+    }
+    public void redrawmainfield(){
+        if (phflag==0){addp1();}
+        if (phflag==1){phcal();}
+    }
+
+    public void addp1(){
+        xd=0;yd=0;
+        Solar     p1 = new Solar();
+        jFrame.add(p1);
+        jFrame.revalidate();
+    }
+
+    public void colormet(){
+        int z = globalz;
+
+        if (z==9){
+            col1=129;col2=0;col3=0;
+        }
+        if (z==8){
+            col1=247;col2=15;col3=15;
+        }
+        if (z==7){
+            col1=255;col2=157;col3=0;
+        }
+        if (z==6){
+            col1=255;col2=245;col3=0;
+        }
+        if (z==5){
+            col1=84;col2=255;col3=0;
+        }
+        if (z==4){
+            col1=123;col2=144;col3=0;
+        }
+        if (z==3){
+            col1=105;col2=185;col3=159;
+        }
+        if (z==2){
+            col1=42;col2=247;col3=245;
+        }
+        if (z==1){
+            col1=0;col2=151;col3=255;
+        }
+    }
+    public void phcalcomp(){
+        int compare=0;
+        for (int i = 0; i < mapheight; i++)
+            for (int j = 0; j < mapwidth; j++)
+                for (int k = 0; k < maplength; k++) {
+                    if (map3[i][j][k] != map2[i][j][k]){
+                        compare++; break;
+                    }
+                }
+        if (compare!=0){
+            phcal();
+        }
+        else{ addp1();}
+    }
+
+    public void phcal(){//phcal start
+        for (int i = 0; i < mapheight; i++)
+            for (int j = 0; j < mapwidth; j++)
+                for (int k = 0; k < maplength; k++) {
+                    map3[i][j][k] = map2[i][j][k];
+                }
+
+        for (int i = mapheight-2; i >-1; i--){
+            for (int j = 0; j < mapwidth; j++){
+                for (int k = 0; k < maplength; k++) {//reverse height start
+                    if (map2[i][j][k]!=0) {
+                        int a = 777;
+                        try {
+                            a = map2[i][j][k - 1];
+                        } catch (Exception e) {
+                        }
+                        int b = 777;
+                        try {
+                            b = map2[i][j][k + 1];
+                        } catch (Exception e) {
+                        }
+                        int d = 777;
+                        try {
+                            d = map2[i][j - 1][k];
+                        } catch (Exception e) {
+                        }
+                        int e = 777;
+                        try {
+                            e = map2[i][j + 1][k];
+                        } catch (Exception e2) {
+                        }
+
+                        if (i > 0 && map2[i][j][k] > 997999 && map2[i][j][k] < 999000) { //if rock start
+                            int stay = 1;
+
+                            if (map2[i-1][j][k] <998000) {// if void down rock start
+                                stay=0;
+
+                                if(a!=777&&b!=777&&map2[i][j][k+1]>997999&&map2[i][j][k+1]<999000&&map2[i][j][k-1]>997999&&map2[i][j][k-1]<999000
+                                        &&map2[i-1][j][k+1]>997999&&map2[i-1][j][k-1]>997999){stay++;}//arc 1 we
+
+                                int a2 = 777;try {a2 = map2[i][j][k - 2];} catch (Exception e3) { }
+                                int b2 = 777;try {b2 = map2[i][j][k +2];} catch (Exception e3) { }
+                                int d2 = 777;try {d2 = map2[i][j-2][k];} catch (Exception e3) { }
+                                int ee = 777;try {ee = map2[i][j+2][k];} catch (Exception e3) { }
+
+                                if(a!=777&&b!=777&&map2[i][j][k+1]>997999&&map2[i][j][k+1]<999000&&map2[i][j][k-1]>997999&&map2[i][j][k-1]<999000&&a2!=777
+                                        &&map2[i][j][k-2]>997999&&map2[i][j][k-2]<999000  &&map2[i-1][j][k+1]>997999&&map2[i-1][j][k-2]>997999){stay++;}//arc 2 we L
+
+                                if(a!=777&&b!=777&&map2[i][j][k+1]>997999&&map2[i][j][k+1]<999000&&map2[i][j][k-1]>997999&&map2[i][j][k-1]<999000&&b2!=777
+                                        &&map2[i][j][k+2]>997999&&map2[i][j][k+2]<999000  &&map2[i-1][j][k+2]>997999&&map2[i-1][j][k-1]>997999){stay++;}//arc 2 we R
+
+                                if(d!=777&&e!=777&&map2[i][j+1][k]>997999&&map2[i][j+1][k]<999000&&map2[i][j-1][k]>997999&&map2[i][j-1][k]<999000
+                                        &&map2[i-1][j+1][k]>997999&&map2[i-1][j-1][k]>997999){stay++;}//arc 1 ns
+
+                                if(d!=777&&e!=777&&map2[i][j+1][k]>997999&&map2[i][j+1][k]<999000&&map2[i][j-1][k]>997999&&map2[i][j-1][k]<999000&&d2!=777
+                                        &&map2[i][j-2][k]>997999&&map2[i][j-2][k]<999000&&map2[i-1][j+1][k]>997999&&map2[i-1][j-2][k]>997999){stay++;}//arc 2 ns L
+
+                                if(d!=777&&e!=777&&map2[i][j+1][k]>997999&&map2[i][j+1][k]<999000&&map2[i][j-1][k]>997999&&map2[i][j-1][k]<999000&&ee!=777
+                                        &&map2[i][j+2][k]>997999&&map2[i][j+2][k]<999000&&map2[i-1][j+2][k]>997999&&map2[i-1][j-1][k]>997999){stay++;}//arc 2 ns R
+
+                            }// if void down rock end
+
+                            if (i > 1) {//rock too high>2 start
+                                if (a != 777&&map2[i][j][k-1]<998000&&map2[i-1][j][k-1]<998000&&map2[i-2][j][k-1]<998000) {
+                                    stay=0;}
+                                if (b != 777&&map2[i][j][k+1]<998000&&map2[i-1][j][k+1]<998000&&map2[i-2][j][k+1]<998000) {
+                                    stay=0;}
+                                if (d != 777&&map2[i][j-1][k]<998000&&map2[i-1][j-1][k]<998000&&map2[i-2][j-1][k]<998000) {
+                                    stay=0;}
+                                if (e != 777&&map2[i][j+1][k]<998000&&map2[i-1][j+1][k]<998000&&map2[i-2][j+1][k]<998000) {
+                                    stay=0;}
+                            }//rock too high>2 end
+                            if (stay == 0)
+                                map2[i][j][k] = 999000;
+                        } //if rock end
+                        if (i > 0 && map2[i][j][k] > 998999 && map2[i - 1][j][k] >= 998000) { //if gravel stands on smth slide start
+
+                            if (a != 777) {
+                                if (a < 998000 && map2[i - 1][j][k - 1] < 998000) {
+                                    a = 1;
+                                }
+                            }
+                            if (b != 777) {
+                                if (b < 998000 && map2[i - 1][j][k + 1] < 998000) {
+                                    b = 1;
+                                }
+                            }
+                            if (d != 777) {
+                                if (d < 998000 && map2[i - 1][j - 1][k] < 998000) {
+                                    d = 1;
+                                }
+                            }
+                            if (e != 777) {
+                                if (e < 998000 && map2[i - 1][j + 1][k] < 998000) {
+                                    e = 1;
+                                }
+                            }
+
+                            if (a != 1)
+                                a = 0;
+                            if (b != 1)
+                                b = 0;
+                            if (d != 1)
+                                d = 0;
+                            if (e != 1)
+                                e = 0;
+
+                            int total = a + b + d + e;
+
+                            if (total > 0) {//if total>0 start
+                                double adoub = (double) 1.0 * a;
+                                double bdoub = (double) 2.0 * b;
+                                double ddoub = (double) 3.0 * d;
+                                double edoub = (double) 4.0 * e;
+                                double rnd = (double) 1.0 + (Math.random() * 4.0);
+
+                                ArrayList<Double> list5 = new ArrayList<Double>();
+                                if (adoub > 0)
+                                    list5.add(Math.abs(rnd - adoub));
+                                if (bdoub > 0)
+                                    list5.add(Math.abs(rnd - bdoub));
+                                if (ddoub > 0)
+                                    list5.add(Math.abs(rnd - ddoub));
+                                if (edoub > 0)
+                                    list5.add(Math.abs(rnd - edoub));
+                                Collections.sort(list5);
+                                double minnum = list5.get(0);
+
+                                if (a > 0 && minnum == Math.abs(rnd - adoub)) {
+                                    map2[i][j][k] = 0;
+                                    map2[i][j][k - 1] = 999000;
+                                    a =b=d=e= 0;
+                                }
+
+                                if (b > 0 && minnum == Math.abs(rnd - bdoub)) {
+                                    map2[i][j][k] = 0;
+                                    map2[i][j][k + 1] = 999000;
+                                    a =b=d=e= 0;
+                                }
+
+                                if (d > 0 && minnum == Math.abs(rnd - ddoub)) {
+                                    map2[i][j][k] = 0;
+                                    map2[i][j - 1][k] = 999000;
+                                    a =b=d=e= 0;
+                                }
+
+                                if (e > 0 && minnum == Math.abs(rnd - edoub)) {
+                                    map2[i][j][k] = 0;
+                                    map2[i][j + 1][k] = 999000;
+                                    a =b=d=e= 0;
+                                }
+
+                            }//if total>0 end
+                        }//if gravel stands on smth slide end
+
+                        if (i > 0 && map2[i][j][k] > 998999 && map2[i - 1][j][k] < 998000) {//if empty down, gravel falls (and kills/replace gr unit)
+                            map2[i][j][k] = 0;
+                            map2[i - 1][j][k] = 999000;
+                        }
+                        if (i > 0 && map2[i][j][k] < 998000 && map2[i - 1][j][k] < 998000) {//if empty down, ground unit dies
+                            map2[i][j][k] = 0;
+                        }
+
+                    } }}}//reverse height end
+
+        phcalcomp();
+    }//phcal end
+
+}
